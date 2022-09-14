@@ -1,0 +1,64 @@
+{
+   "env": {
+      "es6": true,
+      "node": true
+   },
+   "extends": [
+      "google"
+   ],
+   "globals": {
+      "Atomics": "readonly",
+      "SharedArrayBuffer": "readonly"
+   },
+   "parserOptions": {
+      "ecmaVersion": 2018,
+      "sourceType": "module"
+   },
+   "rules": {
+      "comma-dangle": [
+         "error",
+         "never"
+      ],
+      "new-cap": [
+         "error",
+         {
+            "newIsCap": true,
+            "capIsNew": false
+         }
+      ],
+      "max-len": [
+         "error",
+         {
+            "code": 120
+         }
+      ],
+      "quotes": [
+         "error",
+         "backtick",
+         {
+            "avoidEscape": false
+         }
+      ],
+      "indent": [
+         "error",
+         3,
+         {
+            "SwitchCase": 1
+         }
+      ],
+      "no-console": [
+         "error",
+         {
+            "allow": [
+               "warn",
+               "error"
+            ]
+         }
+      ],
+      "block-scoped-var": 2,
+      "object-curly-spacing": [
+         "error",
+         "always"
+      ]
+   }
+}

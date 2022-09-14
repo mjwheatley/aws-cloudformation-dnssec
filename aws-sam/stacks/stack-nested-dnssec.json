@@ -1,0 +1,18 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Metadata": {
+    "LICENSE": "MIT-0"
+  },
+  "Description": "Cloudformation stack to configure Domain Name System Security Extensions (DNSSEC)",
+  "Parameters": {
+    "env": {
+      "Type": "String"
+    }
+  },
+  "Resources": {
+
+  },
+  "Outputs": {
+
+  }
+}
