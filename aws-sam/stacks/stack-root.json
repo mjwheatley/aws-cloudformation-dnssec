@@ -13,6 +13,24 @@
     "ENV": {
       "Type": "String",
       "Default": "nonprod"
+    },
+    "domainName": {
+      "Type": "String"
+    },
+    "hostedZoneId": {
+      "Type": "String"
+    },
+    "logGroupRetentionInDays": {
+      "Type": "Number",
+      "Default": 30
+    },
+    "alertEmail": {
+      "Type": "String",
+      "Default": ""
+    },
+    "alertEmailFallback": {
+      "Type": "String",
+      "Default": ""
     }
   },
   "Globals": {
@@ -37,18 +55,67 @@
     }
   },
   "Resources": {
-    "vpc": {
+    "dnssecStack": {
       "Type": "AWS::Serverless::Application",
       "Properties": {
         "Parameters": {
-          "projectName": {
+          "applicationPrefix": {
             "Ref": "applicationPrefix"
           },
-          "env": {
+          "ENV": {
             "Ref": "ENV"
+          },
+          "domainName": {
+            "Ref": "domainName"
+          },
+          "hostedZoneId": {
+            "Ref": "hostedZoneId"
+          },
+          "kmsKeyArn": {
+            "Fn::GetAtt": [
+              "kmsKeyStack",
+              "Outputs.KeyArn"
+            ]
+          },
+          "alertTopicArn": {
+            "Fn::GetAtt": [
+              "alertStack",
+              "Outputs.TopicARN"
+            ]
           }
         },
-        "Location": "../../.aws-sam/vpc/packaged-template.yaml"
+        "Location": "../../.aws-sam/dnssec/packaged-template.yaml"
+      }
+    },
+    "kmsKeyStack": {
+      "Type": "AWS::Serverless::Application",
+      "Properties": {
+        "Parameters": {
+          "ParentAlertStack": {
+            "Fn::GetAtt": [
+              "alertStack",
+              "Outputs.StackName"
+            ]
+          },
+          "Service": "ROUTE53_DNSSEC",
+          "KeySpec": "ECC_NIST_P256",
+          "KeyUsage": "SIGN_VERIFY"
+        },
+        "Location": "../../.aws-sam/kms-key/packaged-template.yaml"
+      }
+    },
+    "alertStack": {
+      "Type": "AWS::Serverless::Application",
+      "Properties": {
+        "Parameters": {
+          "Email": {
+            "Ref": "alertEmail"
+          },
+          "FallbackEmail": {
+            "Ref": "alertEmailFallback"
+          }
+        },
+        "Location": "../../.aws-sam/alert/packaged-template.yaml"
       }
     }
   },

@@ -2,7 +2,7 @@
   "TagSet": [
     {
       "Key": "StackName",
-      "Value": "Infrastructure"
+      "Value": "DNSSEC"
     }
   ]
 }

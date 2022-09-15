@@ -19,7 +19,13 @@
     "deploy:stack:root": "run-s deploy:sam:build deploy:sam:deploy",
     "deploy:dnssec:build": "sam build -b .aws-sam/dnssec -t aws-sam/stacks/stack-nested-dnssec.json --parameter-overrides applicationPrefix=${applicationPrefix}",
     "deploy:dnssec:package": "sam package --template-file .aws-sam/dnssec/template.yaml --output-template-file .aws-sam/dnssec/packaged-template.yaml --s3-bucket ${applicationPrefix}-sam-stack-${ENV:-nonprod}-${REGION:-us-east-1} --region ${REGION:-us-east-1}",
-    "deploy:stack:nested:dnssec": "run-s deploy:dnssec:build deploy:dnssec:package"
+    "deploy:stack:nested:dnssec": "run-s deploy:dnssec:build deploy:dnssec:package",
+    "deploy:kms-key:build": "sam build -b .aws-sam/kms-key -t aws-sam/stacks/stack-nested-kms-key.yaml",
+    "deploy:kms-key:package": "sam package --template-file .aws-sam/kms-key/template.yaml --output-template-file .aws-sam/kms-key/packaged-template.yaml --s3-bucket ${applicationPrefix}-sam-stack-${ENV:-nonprod}-${REGION:-us-east-1} --region ${REGION:-us-east-1}",
+    "deploy:stack:nested:kms-key": "run-s deploy:kms-key:build deploy:kms-key:package",
+    "deploy:alert:build": "sam build -b .aws-sam/alert -t aws-sam/stacks/stack-nested-alert.yaml",
+    "deploy:alert:package": "sam package --template-file .aws-sam/alert/template.yaml --output-template-file .aws-sam/alert/packaged-template.yaml --s3-bucket ${applicationPrefix}-sam-stack-${ENV:-nonprod}-${REGION:-us-east-1} --region ${REGION:-us-east-1}",
+    "deploy:stack:nested:alert": "run-s deploy:alert:build deploy:alert:package"
   },
   "repository": {
     "type": "git",
