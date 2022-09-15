@@ -1,2 +1,2 @@
-# aws-cloudformation-vpc
-AWS Cloudformation template for VPC with VPC Endpoints
+# aws-cloudformation-dnssec
+Repository for deploying an AWS Cloudformation template for configuring and enabling Domain Name System Security Extensions (DNSSEC).
