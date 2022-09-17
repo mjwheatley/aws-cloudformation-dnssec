@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
   "Transform": "AWS::Serverless-2016-10-31",
-  "Description": "AWS Serverless Application Twilio Training Distribution",
+  "Description": "AWS Serverless Application",
   "Parameters": {
     "applicationPrefix": {
       "Type": "String",
@@ -23,6 +23,9 @@
     "logGroupRetentionInDays": {
       "Type": "Number",
       "Default": 30
+    },
+    "nodejsRuntime": {
+      "Type": "String"
     },
     "alertEmail": {
       "Type": "String",
@@ -55,7 +58,10 @@
     }
   },
   "Resources": {
-    "dnssecStack": {
+    "nestedStackDNSSEC": {
+      "DependsOn": [
+        "nestedStackCfnDSRecordValueLambda"
+      ],
       "Type": "AWS::Serverless::Application",
       "Properties": {
         "Parameters": {
@@ -73,27 +79,33 @@
           },
           "kmsKeyArn": {
             "Fn::GetAtt": [
-              "kmsKeyStack",
+              "nestedStackKmsKey",
               "Outputs.KeyArn"
             ]
           },
           "alertTopicArn": {
             "Fn::GetAtt": [
-              "alertStack",
+              "nestedStackAlert",
               "Outputs.TopicARN"
+            ]
+          },
+          "CfnDSRecordValueLambdaArn": {
+            "Fn::GetAtt": [
+              "nestedStackCfnDSRecordValueLambda",
+              "Outputs.LambdaArn"
             ]
           }
         },
         "Location": "../../.aws-sam/dnssec/packaged-template.yaml"
       }
     },
-    "kmsKeyStack": {
+    "nestedStackKmsKey": {
       "Type": "AWS::Serverless::Application",
       "Properties": {
         "Parameters": {
           "ParentAlertStack": {
             "Fn::GetAtt": [
-              "alertStack",
+              "nestedStackAlert",
               "Outputs.StackName"
             ]
           },
@@ -104,7 +116,7 @@
         "Location": "../../.aws-sam/kms-key/packaged-template.yaml"
       }
     },
-    "alertStack": {
+    "nestedStackAlert": {
       "Type": "AWS::Serverless::Application",
       "Properties": {
         "Parameters": {

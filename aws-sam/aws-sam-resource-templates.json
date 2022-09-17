@@ -1,0 +1,206 @@
+{
+  "lambda": {
+    "Type": "AWS::Serverless::Function",
+    "Properties": {
+      "CodeUri": "../../build/lambdaName/lambdaName.tgz",
+      "Description": "",
+      "FunctionName": {
+        "Fn::Sub": "${applicationPrefix}"
+      },
+      "Role": {
+        "Fn::GetAtt": [
+          "LambdaExecutionRole",
+          "Arn"
+        ]
+      }
+    }
+  },
+  "lambdaExecutionRole": {
+    "Type": "AWS::IAM::Role",
+    "Properties": {
+      "RoleName": {
+        "Fn::Sub": "LambdaExecutionRole-"
+      },
+      "AssumeRolePolicyDocument": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": [
+                "lambda.amazonaws.com"
+              ]
+            },
+            "Action": [
+              "sts:AssumeRole"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "lambdaExecutionPolicy": {
+    "DependsOn": [
+      "LambdaExecutionRole"
+    ],
+    "Type": "AWS::IAM::Policy",
+    "Properties": {
+      "PolicyName": "lambda-execution-policy",
+      "Roles": [
+        {
+          "Ref": "LambdaExecutionRole"
+        }
+      ],
+      "PolicyDocument": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "logs:CreateLogGroup",
+              "logs:CreateLogStream",
+              "logs:PutLogEvents"
+            ],
+            "Resource": {
+              "Fn::Sub": [
+                "arn:${partition}:logs:${region}:${account}:log-group:/aws/lambda/${lambda}:log-stream:*",
+                {
+                  "partition": {
+                    "Ref": "AWS::Partition"
+                  },
+                  "region": {
+                    "Ref": "AWS::Region"
+                  },
+                  "account": {
+                    "Ref": "AWS::AccountId"
+                  },
+                  "lambda": {
+                    "Ref": "LambdaFunction"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "layerLambdaNodeModules": {
+    "Type": "AWS::Lambda::LayerVersion",
+    "Properties": {
+      "CompatibleRuntimes": [
+        {
+          "Ref": "nodejsRuntime"
+        }
+      ],
+      "Content": "../../build/lambdaName/node_modules.zip",
+      "Description": {
+        "Fn::Sub": "Lambda Layer containing node module dependencies for ${functionName}"
+      },
+      "LayerName": {
+        "Fn::Sub": "layer-${functionName}-node-modules"
+      }
+    }
+  },
+  "logGroupLambda": {
+    "Type": "AWS::Logs::LogGroup",
+    "Properties": {
+      "LogGroupName": {
+        "Fn::Sub": "/aws/lambda/"
+      },
+      "RetentionInDays": {
+        "Ref": "logGroupRetentionInDays"
+      }
+    }
+  },
+  "lambdaStack": {
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Transform": "AWS::Serverless-2016-10-31",
+    "Description": "AWS Serverless Application Twilio Training Distribution",
+    "Parameters": {
+      "applicationPrefix": {
+        "Type": "String",
+        "AllowedPattern": "^[a-z0-9]*$",
+        "Description": "Prefix for application stack resources",
+        "MaxLength": 20,
+        "MinLength": 3
+      },
+      "ENV": {
+        "Type": "String",
+        "Default": "nonprod"
+      },
+      "nodejsRuntime": {
+        "Type": "String",
+        "Default": "nodejs14.x"
+      },
+      "logGroupRetentionInDays": {
+        "Type": "Number"
+      }
+    },
+    "Globals": {
+      "Function": {
+        "EventInvokeConfig": {
+          "MaximumEventAgeInSeconds": 60,
+          "MaximumRetryAttempts": 0
+        },
+        "Environment": {
+          "Variables": {
+            "ENV": {
+              "Ref": "ENV"
+            }
+          }
+        },
+        "Handler": "index.handler",
+        "Layers": [
+          {
+            "Ref": "layerLambdaNodeModules"
+          }
+        ],
+        "MemorySize": 256,
+        "Runtime": {
+          "Ref": "nodejsRuntime"
+        },
+        "Timeout": 15
+      }
+    },
+    "Resources": {
+    },
+    "Outputs": {
+      "LambdaName": {
+        "Value": {
+          "Ref": "LambdaFunction"
+        }
+      },
+      "LambdaArn": {
+        "Value": {
+          "Fn::GetAtt": [
+            "LambdaFunction",
+            "Arn"
+          ]
+        }
+      }
+    }
+  },
+  "nestedStack": {
+    "Type": "AWS::Serverless::Application",
+    "DependsOn": [
+    ],
+    "Properties": {
+      "Parameters": {
+        "applicationPrefix": {
+          "Ref": "applicationPrefix"
+        },
+        "ENV": {
+          "Ref": "ENV"
+        },
+        "nodejsRuntime": {
+          "Ref": "nodejsRuntime"
+        },
+        "logGroupRetentionInDays": {
+          "Ref": "logGroupRetentionInDays"
+        }
+      },
+      "Location": "../../.aws-sam/lambdaName/packaged-template.yaml"
+    }
+  }
+}

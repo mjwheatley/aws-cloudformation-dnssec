@@ -18,7 +18,7 @@ const run = async () => {
       }).promise();
       const stackResources = stackResourcesResponse.StackResources;
       const nestedStacks = stackResources.filter((resource) => {
-         return resource.LogicalResourceId === `vpc` || resource.LogicalResourceId.includes(`stack`);
+         return resource.LogicalResourceId.includes(`nestedStack`);
       });
       const stackNameMap = {};
       nestedStacks.forEach((nestedStack) => {

@@ -2,7 +2,7 @@
   "name": "aws-cloudformation-dnssec",
   "version": "1.0.0",
   "description": "Repository for deploying an AWS Cloudformation template for configuring and enabling Domain Name System Security Extensions (DNSSEC).",
-  "main": "index.js",
+  "main": "build.js",
   "scripts": {
     "init": ". aws-sam/environment/ENV.sh && npm i && npm run deploy:init",
     "deploy:init": "run-s deploy:s3 deploy:sam",
@@ -11,11 +11,12 @@
     "deploy:s3Bucket": "aws s3 mb s3://${applicationPrefix}-sam-stack-${ENV:-nonprod}-${REGION:-us-east-1} --region ${REGION:-us-east-1}",
     "deploy:s3Tagging": "aws s3api put-bucket-tagging --bucket ${applicationPrefix}-sam-stack-${ENV:-nonprod}-${REGION:-us-east-1} --tagging file://aws-sam/tagging.json --region ${REGION:-us-east-1}",
     "deploy:package": "run-p deploy:stack:nested:*",
-    "deploy:sam": "run-s deploy:sam:paramOverrides deploy:package deploy:stack:root",
+    "deploy:sam": "run-s deploy:sam:paramOverrides deploy:sam:generate deploy:package deploy:stack:root",
     "deploy:sam:paramOverrides": "node aws-sam/environment/sam-parameter-overrides.js",
-    "deploy:sam:build": "sam build -b .aws-sam/root -t aws-sam/stacks/stack-root.json --region ${REGION:-us-east-1}",
+    "deploy:sam:build": "sam build -b .aws-sam/root -t aws-sam/deploy/root.deploy.json --region ${REGION:-us-east-1}",
     "deploy:sam:deploy": "sam deploy --template-file .aws-sam/root/template.yaml --s3-bucket ${applicationPrefix}-sam-stack-${ENV:-nonprod}-${REGION:-us-east-1} --stack-name ${applicationPrefix}-sam-stack --parameter-overrides $(cat aws-sam/environment/sam-parameter-overrides.json | fx 'Object.keys(this).map(k=>`${k}=${this[k]}`).join(` `)') --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND --tags $(cat aws-sam/tagging.json | fx 'this.TagSet.map(x=>`${x.Key}=${x.Value}`).join(` `)') --region ${REGION:-us-east-1}",
     "deploy:sam:download": "node aws-sam/downloadNestedStackTemplates.js",
+    "deploy:sam:generate": "node aws-sam/aws-sam-resource-generator.js",
     "deploy:stack:root": "run-s deploy:sam:build deploy:sam:deploy",
     "deploy:dnssec:build": "sam build -b .aws-sam/dnssec -t aws-sam/stacks/stack-nested-dnssec.json --parameter-overrides applicationPrefix=${applicationPrefix}",
     "deploy:dnssec:package": "sam package --template-file .aws-sam/dnssec/template.yaml --output-template-file .aws-sam/dnssec/packaged-template.yaml --s3-bucket ${applicationPrefix}-sam-stack-${ENV:-nonprod}-${REGION:-us-east-1} --region ${REGION:-us-east-1}",
@@ -25,7 +26,11 @@
     "deploy:stack:nested:kms-key": "run-s deploy:kms-key:build deploy:kms-key:package",
     "deploy:alert:build": "sam build -b .aws-sam/alert -t aws-sam/stacks/stack-nested-alert.yaml",
     "deploy:alert:package": "sam package --template-file .aws-sam/alert/template.yaml --output-template-file .aws-sam/alert/packaged-template.yaml --s3-bucket ${applicationPrefix}-sam-stack-${ENV:-nonprod}-${REGION:-us-east-1} --region ${REGION:-us-east-1}",
-    "deploy:stack:nested:alert": "run-s deploy:alert:build deploy:alert:package"
+    "deploy:stack:nested:alert": "run-s deploy:alert:build deploy:alert:package",
+    "deploy:lambdaStack:build": "run-s deploy:sam:generate && node aws-sam/lambdaStack.build.js",
+    "deploy:lambdaStack:package": "node aws-sam/lambdaStack.package.js",
+    "deploy:stack:nested:lambdaStack": "run-s deploy:lambdaStack:build deploy:lambdaStack:package",
+    "lambda:build": "node build.js"
   },
   "repository": {
     "type": "git",
@@ -52,7 +57,8 @@
     "husky": "^4.0.0-beta.2",
     "lerna": "^3.13.4",
     "lint-staged": "8.2.1",
-    "npm-run-all": "^4.1.5"
+    "npm-run-all": "^4.1.5",
+    "typescript": "4.3.5"
   },
   "husky": {
     "hooks": {

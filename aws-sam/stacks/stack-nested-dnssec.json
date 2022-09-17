@@ -24,6 +24,9 @@
     "alertTopicArn": {
       "Type": "String",
       "Default": ""
+    },
+    "CfnDSRecordValueLambdaArn": {
+      "Type": "String"
     }
   },
   "Conditions": {
@@ -43,6 +46,7 @@
   "Resources": {
     "route53KSK": {
       "Type": "AWS::Route53::KeySigningKey",
+      "DeletionPolicy": "Retain",
       "Properties": {
         "HostedZoneId": {
           "Ref": "hostedZoneId"
@@ -58,6 +62,9 @@
     },
     "route53DNSSEC": {
       "Type": "AWS::Route53::DNSSEC",
+      "DependsOn": [
+        "route53KSK"
+      ],
       "Properties": {
         "HostedZoneId": {
           "Ref": "hostedZoneId"
@@ -131,7 +138,7 @@
         "Threshold": 0,
         "TreatMissingData": "notBreaching"
       }
-    }
+    },
   },
   "Outputs": {
     "StackName": {
