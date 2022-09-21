@@ -114,11 +114,13 @@ const generateResourcesForLambdas = async () => {
     lambdaStack.Resources[logGroupResourceName] = logGroupResource;
 
     /**
-     * IAM Role Policy
+     * Resources
      * **/
-    if (propertyOverrides.IAMRolePolicy) {
-      const resourceName = `iamRolePolicy`;
-      lambdaStack.Resources[resourceName] = propertyOverrides.IAMRolePolicy;
+    if (propertyOverrides.Resources) {
+      Object.keys(propertyOverrides.Resources).forEach((resourceKey) => {
+        const resource = propertyOverrides.Resources[resourceKey];
+        lambdaStack.Resources[resourceKey] = resource;
+      });
     }
 
     /**

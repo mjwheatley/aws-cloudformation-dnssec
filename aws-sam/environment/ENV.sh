@@ -8,4 +8,5 @@ export hostedZoneId=ZPK60LWN0MMF2
 export logGroupRetentionInDays=30
 export alertEmail=mattjwheatley@gmail.com
 export alertEmailFallback=mattjwheatley@gmail.com
+export kmsKeySecretRotationInDays=1
 export LAMBDAS=all

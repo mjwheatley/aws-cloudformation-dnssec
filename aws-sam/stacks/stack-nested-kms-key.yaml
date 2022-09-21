@@ -28,6 +28,15 @@ Metadata:
           - KeySpec
           - KeyUsage
 Parameters:
+  applicationPrefix:
+    Type: String
+    AllowedPattern: ^[a-z0-9]*$
+    Description: 'Application prefix for stack resource names.'
+    MaxLength: 20
+    MinLength: 3
+  ENV:
+    Type: String
+    Default: 'nonprod'
   ParentAlertStack:
     Description: 'Optional but recommended stack name of parent alert stack based on operations/alert.yaml template.'
     Type: String
@@ -180,6 +189,14 @@ Resources:
                   'kms:GrantIsForAWSResource': true
             - !Ref 'AWS::NoValue'
           - !If
+            - HasServiceRoute53Dnssec
+            - Effect: Allow
+              Principal:
+                AWS: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/LambdaExecutionRole-${applicationPrefix}-${ENV}-DnsSecKmsKeyRotation'
+              Action: 'kms:*'
+              Resource: '*'
+            - !Ref 'AWS::NoValue'
+          - !If
             - HasServiceCloudTrail
             - Effect: Allow # https://docs.aws.amazon.com/awscloudtrail/latest/userguide/create-kms-key-policy-for-cloudtrail.html#create-kms-key-policy-for-cloudtrail-encrypt
               Principal:
@@ -239,3 +256,8 @@ Outputs:
     Value: !GetAtt 'Key.Arn'
     Export:
       Name: !Sub '${AWS::StackName}-KeyArn'
+  KeyAlias:
+    Description: 'Key Alias.'
+    Value: !Sub 'alias/${AWS::StackName}'
+    Export:
+      Name: !Sub '${AWS::StackName}-KeyAlias'

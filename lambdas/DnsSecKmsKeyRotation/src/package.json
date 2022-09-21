@@ -1,0 +1,19 @@
+{
+  "name": "cfn-ds-record-value-src",
+  "version": "1.0.0",
+  "description": "Cloudformation Custom Resource Lambda to retrieve the DS Record Value for DNSSEC.",
+  "author": "mjwheatley",
+  "license": "MIT",
+  "main": "src/index.js",
+  "scripts": {
+  },
+  "dependencies": {
+    "cfn-response": "^1.0.1"
+  },
+  "devDependencies": {
+  },
+  "files": [
+    "src/",
+    "index.js"
+  ]
+}

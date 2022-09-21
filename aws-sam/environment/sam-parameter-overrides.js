@@ -8,7 +8,8 @@ const paramOverrideKeys = [
   `hostedZoneId`,
   `logGroupRetentionInDays`,
   `alertEmail`,
-  `alertEmailFallback`
+  `alertEmailFallback`,
+  `kmsKeySecretRotationInDays`
 ];
 const paramOverrides = {};
 paramOverrideKeys.forEach((key) => {

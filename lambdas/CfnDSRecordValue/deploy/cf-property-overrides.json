@@ -14,32 +14,6 @@
     "Events": {
     }
   },
-  "IAMRolePolicy": {
-    "DependsOn": [
-      "LambdaExecutionRole"
-    ],
-    "Type": "AWS::IAM::Policy",
-    "Properties": {
-      "PolicyName": "lambda-execution-policy-route53-dnssec",
-      "Roles": [
-        {
-          "Ref": "LambdaExecutionRole"
-        }
-      ],
-      "PolicyDocument": {
-        "Version": "2012-10-17",
-        "Statement": [
-          {
-            "Effect": "Allow",
-            "Action": [
-              "route53:GetDNSSEC"
-            ],
-            "Resource": "*"
-          }
-        ]
-      }
-    }
-  },
   "StackParameters": {
     "hostedZoneId": {
       "Type": "String"
@@ -51,6 +25,34 @@
   "NestedStackParameters": {
     "hostedZoneId": {
       "Ref": "hostedZoneId"
+    }
+  },
+  "Resources": {
+    "iamRolePolicy": {
+      "DependsOn": [
+        "LambdaExecutionRole"
+      ],
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "lambda-execution-policy-route53-dnssec",
+        "Roles": [
+          {
+            "Ref": "LambdaExecutionRole"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "route53:GetDNSSEC"
+              ],
+              "Resource": "*"
+            }
+          ]
+        }
+      }
     }
   }
 }

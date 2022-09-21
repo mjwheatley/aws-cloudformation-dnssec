@@ -34,6 +34,10 @@
     "alertEmailFallback": {
       "Type": "String",
       "Default": ""
+    },
+    "kmsKeySecretRotationInDays": {
+      "Type": "Number",
+      "Default": 7
     }
   },
   "Globals": {
@@ -111,7 +115,13 @@
           },
           "Service": "ROUTE53_DNSSEC",
           "KeySpec": "ECC_NIST_P256",
-          "KeyUsage": "SIGN_VERIFY"
+          "KeyUsage": "SIGN_VERIFY",
+          "applicationPrefix": {
+            "Ref": "applicationPrefix"
+          },
+          "ENV": {
+            "Ref": "ENV"
+          }
         },
         "Location": "../../.aws-sam/kms-key/packaged-template.yaml"
       }
