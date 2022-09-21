@@ -4,7 +4,7 @@
   "description": "AWS Lambda function triggered by Secrets Manager for manual rotation of the DNSSEC KMS Key.",
   "author": "mjwheatley",
   "license": "MIT",
-  "main": "dist/src/index.js",
+  "main": "src/index.js",
   "scripts": {
     "build": "tsc -p .",
     "prepare": "npm run build",

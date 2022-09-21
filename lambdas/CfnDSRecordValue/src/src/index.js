@@ -58,4 +58,3 @@ const handler = (event, context) => {
     }
 };
 exports.handler = handler;
-//# sourceMappingURL=index.js.map

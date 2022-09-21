@@ -219,4 +219,3 @@ const finishSecret = async (client, arn, token) => {
     }).promise();
     console.log(`Successfully finished promoting pending to current`);
 };
-//# sourceMappingURL=index.js.map
